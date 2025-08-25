@@ -7,6 +7,8 @@ const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
