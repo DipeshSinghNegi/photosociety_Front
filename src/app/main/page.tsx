@@ -80,6 +80,7 @@ export default function Main() {
         queueRef.current.push(url as string);
         void showNext();
       });
+      socket.emit("photo_loaded");
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line
