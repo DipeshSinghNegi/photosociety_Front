@@ -1,83 +1,63 @@
-// To enable real-time updates with socket.io:
-// 1. Start your Express backend: node server.js (or npm run server if you have a script)
-// 2. Start your Next.js frontend: npm run dev
-// 3. In your frontend code, set the socket.io client to connect to http://localhost:5001
-// 4. Set NEXT_PUBLIC_API_BASE in .env.local to http://localhost:5001 for API calls
-// This way, your frontend uses Next.js on port 3000 and real-time backend on port 5001.
-
+// backend/server.js
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
+
 const app = express();
 app.use(cors({ origin: "*" }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// serve uploaded files
+const UPLOAD_DIR = path.join(__dirname, "uploads");
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
+app.use("/uploads", express.static(UPLOAD_DIR));
+
 const server = http.createServer(app);
 
+// Multer setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, "uploads");
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-    cb(null, dir);
-  },
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
-    const uniqueName =  file.originalname;
+    const uniqueName = Date.now() + "-" + file.originalname; // avoid collisions
     cb(null, uniqueName);
   }
 });
 const upload = multer({ storage });
 
 let lastPhoto = null;
-let lastPhotoPath = null;
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
-
-app.get("/", (req, res) => {
-  res.send({ message: "API live master." });
-});
-
+// Upload route
 app.post("/upload", upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send({ error: "No file uploaded." });
-  }
-
-  if (lastPhotoPath) {
-    fs.unlink(lastPhotoPath, (err) => {
-      if (err) console.error("Failed to delete old photo:", err);
-    });
-  }
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
   const photoUrl = `/uploads/${req.file.filename}`;
   lastPhoto = photoUrl;
-  lastPhotoPath = path.join(__dirname, "uploads", req.file.filename);
 
-  io.to("main-panel").emit("display_photo", photoUrl);
+  // cleanup: keep only last 10
+  const files = fs.readdirSync(UPLOAD_DIR)
+    .map(name => ({
+      name,
+      time: fs.statSync(path.join(UPLOAD_DIR, name)).mtime.getTime()
+    }))
+    .sort((a, b) => a.time - b.time); // oldest first
 
-  res.send({ success: true, url: photoUrl });
+  if (files.length > 10) {
+    const toDelete = files.slice(0, files.length - 10);
+    toDelete.forEach(f => fs.unlinkSync(path.join(UPLOAD_DIR, f.name)));
+  }
+
+  res.json({ success: true, url: photoUrl });
 });
 
+// Latest photo (polled every 3s)
 app.get("/display_pic", (req, res) => {
-  if (!lastPhoto) {
-    return res.status(400).send({ error: "No recent pics found" });
-  }
+  if (!lastPhoto) return res.status(400).json({ error: "No photos yet" });
   res.json({ photo: lastPhoto });
 });
 
-io.on("connection", (socket) => {
-  socket.on("join_main_panel", () => {
-    socket.join("main-panel");
-  });
-
-  socket.on("disconnect", () => {});
-});
-
-server.listen(5001, () => {
-  console.log("Server listening...");
+const PORT = process.env.PORT || 5001;
+server.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
 });
