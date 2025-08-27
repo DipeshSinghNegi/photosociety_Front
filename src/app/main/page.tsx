@@ -113,18 +113,17 @@ export default function Main() {
         
       }}>
         {/* Logo */}
-        <img
-          src="img/logo.png"
-          alt="Photo Society Logo"
-          style={{
-            width: 80, 
-            height: 60, 
-            objectFit: "contain",
-            margin: "0 auto 4px", // Reduced from 12px to 4px
-            display: "block",
-            filter: "drop-shadow(0 4px 12px rgba(103, 72, 228, 0.12))"
-          }}
-        />
+        <h1 style={{
+            fontSize: '2rem',
+            background: 'linear-gradient(135deg, #10B981 0%, #9333EA 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            marginBottom: '0.75rem',
+            alignItems: "center",
+            lineHeight: '1.2'
+          }}>
+            Light.Camera.BIAS
+        </h1>
         
         {/* Status text - REMOVED top margin */}
         <div style={{
