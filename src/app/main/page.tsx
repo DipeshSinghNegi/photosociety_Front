@@ -1,24 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image"; // Only for your logo at the top, not for dynamic photos
+import { io, Socket } from "socket.io-client";
 
 const MIN_DISPLAY_MS = 5000; // Each image at least 5 seconds
 
 export default function Main() {
-
-
-  const [connected, setConnected] = useState<boolean>(false);
+  const [connected, setConnected] = useState(false);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [err, setErr] = useState("");
   const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5001";
-  const [err, setErr] = useState<string>("");
-  const socketRef = useRef<any>(null);
 
-
+  const socketRef = useRef<Socket | null>(null);
   const queueRef = useRef<string[]>([]);
-  const swappingRef = useRef<boolean>(false);
-  const lastSwapAtRef = useRef<number>(0);
-
+  const swappingRef = useRef(false);
+  const lastSwapAtRef = useRef(0);
 
   const preload = (src: string): Promise<boolean> =>
     new Promise((resolve) => {
@@ -33,22 +29,23 @@ export default function Main() {
     swappingRef.current = true;
     try {
       const wait = Math.max(0, MIN_DISPLAY_MS - (Date.now() - lastSwapAtRef.current));
-      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+
       const next = queueRef.current.shift();
       if (!next) return;
-      // Prepend API base if not already absolute
+
       const fullUrl = next.startsWith("http") ? next : `${apiBase}${next}`;
       const ok = await preload(fullUrl);
+
       if (ok) {
         setImgSrc(fullUrl);
         setErr("");
         lastSwapAtRef.current = Date.now();
-        socketRef.current?.emit("photo_loaded"); // ✅ tell server after showing
-        } else {
+        socketRef.current?.emit("photo_loaded");
+      } else {
         setErr("Image URL not reachable (404/blocked).");
-        socketRef.current?.emit("photo_loaded"); // still ack so queue doesn’t stall
-    }
-
+        socketRef.current?.emit("photo_loaded");
+      }
     } finally {
       swappingRef.current = false;
       if (queueRef.current.length) void showNext();
@@ -56,43 +53,43 @@ export default function Main() {
   }
 
   useEffect(() => {
-  let cancelled = false;
-  (async () => {
-    try {
-      const r = await fetch(`${apiBase}/display_pic`, { cache: "no-store" });
-      if (r.ok) {
-        const d = await r.json();
-        if (d?.photo) {
-          const fullUrl = d.photo.startsWith("http") ? d.photo : `${apiBase}${d.photo}`;
-          if (!cancelled && await preload(fullUrl)) {
-            setImgSrc(fullUrl);
-            lastSwapAtRef.current = Date.now();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const r = await fetch(`${apiBase}/display_pic`, { cache: "no-store" });
+        if (r.ok) {
+          const d = await r.json();
+          if (d?.photo) {
+            const fullUrl = d.photo.startsWith("http") ? d.photo : `${apiBase}${d.photo}`;
+            if (!cancelled && (await preload(fullUrl))) {
+              setImgSrc(fullUrl);
+              lastSwapAtRef.current = Date.now();
+            }
           }
         }
-      }
-    } catch {}
+      } catch {}
 
-    const { io } = await import("socket.io-client");
-    const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5001";
-    const s = io(base, { transports: ["websocket"] });
-    socketRef.current = s;
+      const s = io(apiBase, { transports: ["websocket"] });
+      socketRef.current = s;
 
-    s.on("connect", () => setConnected(true));
-    s.on("disconnect", () => setConnected(false));
-    s.emit("join_main_panel");
+      s.on("connect", () => setConnected(true));
+      s.on("disconnect", () => setConnected(false));
+      s.emit("join_main_panel");
 
-    s.on("display_photo", (url: string) => {
-      queueRef.current.push(url);
-      void showNext();
-    });
-  })();
+      s.on("display_photo", (url: string) => {
+        queueRef.current.push(url);
+        void showNext();
+      });
+    })();
 
-  return () => {
-    cancelled = true;
-    socketRef.current?.disconnect();
-  };
-  // eslint-disable-next-line
-}, []);
+    return () => {
+      cancelled = true;
+      socketRef.current?.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
 
   return (
