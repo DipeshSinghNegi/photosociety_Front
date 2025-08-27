@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
+import { stringify } from 'querystring';
 
 const lastPhotoFile = path.join(process.cwd(), 'public/uploads/.lastPhoto');
 
@@ -12,6 +13,6 @@ export async function GET() {
     const photo = fs.readFileSync(lastPhotoFile, 'utf8');
     return NextResponse.json({ photo });
   } catch (e) {
-    return NextResponse.json({ error: 'Failed to get photo' }, { status: 500 });
+    return NextResponse.json({ error: e }, { status: 500 });
   }
 }
