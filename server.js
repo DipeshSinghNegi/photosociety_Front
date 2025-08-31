@@ -99,7 +99,7 @@ app.get("/display_pic", (req, res) => {
   res.json({ photo: queue[0] || null });
 });
 
-app.post("/", upload.single("image"), (req, res) => {
+app.get("/", upload.single("image"), (req, res) => {
    res.json({message:"Api is live master."})
 });
 
