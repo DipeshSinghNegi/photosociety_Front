@@ -99,8 +99,12 @@ app.get("/display_pic", (req, res) => {
   res.json({ photo: queue[0] || null });
 });
 
+app.post("/", upload.single("image"), (req, res) => {
+   res.json({message:"Api is live master."})
+});
+
 // Start server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5001
 server.listen(PORT, () => {
   console.log(`🚀 Server running on ${PORT}`);
 });
