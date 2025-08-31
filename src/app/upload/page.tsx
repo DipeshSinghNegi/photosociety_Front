@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useMemo, useState,useRef } from "react";
 export default function UploadPage() {
-  const API_BASE = useMemo(() => {
-    const base = process.env.NEXT_PUBLIC_API_BASE;
-    if (!base) throw new Error("Set NEXT_PUBLIC_API_BASE in .env.local (e.g. http://localhost:5001) and restart dev.");
-    return base.replace(/\/+$/, "");
-  }, []);
+const API_BASE = useMemo(() => {
+  const base = process.env.NEXT_PUBLIC_API_BASE;
+  if (!base) throw new Error("Set NEXT_PUBLIC_API_BASE in .env.local (e.g. http://localhost:5001) and restart dev.");
+  return base.replace(/\/+$/, "");
+}, []);
+
 
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState("");
