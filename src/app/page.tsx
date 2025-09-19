@@ -19,6 +19,9 @@ export default function Home() {
             👀 View Live Gallery
           </a>
         </div>
+         <p className="description">
+        ~ College Photo Society Event
+        </p>
       </main>
 
       {/* Embedded CSS */}
