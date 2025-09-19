@@ -4,7 +4,8 @@ export default function Home() {
   return (
     <div className="container">
       <main className="card">
-        <h1 className="title">Welcome</h1>
+        <h1 className="title">PhotoWall</h1>
+        <h2 className="title">Welcome Freshers</h1>
 
         <p className="description">
           Share your moments by uploading your favorite photos and instantly see them appear in the live gallery.
