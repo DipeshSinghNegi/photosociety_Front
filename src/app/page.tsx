@@ -1,33 +1,119 @@
-// src/app/page.tsx
 "use client";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-purple-100 font-sans">
-      <main className="bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-10 max-w-md w-full border border-gray-200 text-center">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
-          Welcome
-        </h1>
+    <div className="container">
+      <main className="card">
+        <h1 className="title">Welcome</h1>
 
-        <p className="text-gray-700 leading-relaxed mb-6">
-          Share your moments with us by uploading your photos and instantly see them appear live on the event screen.
+        <p className="description">
+          Share your moments by uploading your favorite photos and instantly see them appear in the live gallery.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <a
-            href="/upload"
-            className="px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-md hover:opacity-90 transition"
-          >
-            Upload a Photo
+        <div className="button-group">
+          <a href="/upload" className="btn primary">
+            📷 Upload a Photo
           </a>
-          <a
-            href="/main"
-            className="px-6 py-3 rounded-lg bg-white text-indigo-700 font-semibold border border-indigo-200 shadow-sm hover:bg-indigo-50 transition"
-          >
-            View Live Gallery
+          <a href="/main" className="btn secondary">
+            👀 View Live Gallery
           </a>
         </div>
       </main>
+
+      {/* Embedded CSS */}
+      <style jsx>{`
+        /* Container setup */
+        .container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          font-family: sans-serif;
+          background: linear-gradient(to bottom right, #e0e7ff, #ffffff, #f3e8ff);
+        }
+
+        /* Card styling */
+        .card {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          border-radius: 24px;
+          padding: 48px 32px;
+          max-width: 500px;
+          width: 100%;
+          text-align: center;
+        }
+
+        /* Title with gradient text */
+        .title {
+          font-size: 2.5rem;
+          font-weight: 800;
+          background: linear-gradient(to right, #4f46e5, #a855f7);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 24px;
+        }
+
+        /* Description text */
+        .description {
+          color: #4b5563;
+          font-size: 1.125rem;
+          line-height: 1.6;
+          margin-bottom: 32px;
+        }
+
+        /* Button group layout */
+        .button-group {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          justify-content: center;
+        }
+
+        @media (min-width: 640px) {
+          .button-group {
+            flex-direction: row;
+          }
+        }
+
+        /* Buttons */
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 24px;
+          border-radius: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.2s, background-color 0.2s;
+          text-decoration: none;
+        }
+
+        .btn:hover {
+          transform: scale(1.05);
+        }
+
+        /* Primary button */
+        .btn.primary {
+          background: linear-gradient(to right, #4f46e5, #a855f7);
+          color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Secondary button */
+        .btn.secondary {
+          background: white;
+          color: #4f46e5;
+          border: 1px solid #c7d2fe;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn.secondary:hover {
+          background: #eef2ff;
+        }
+      `}</style>
     </div>
   );
 }
