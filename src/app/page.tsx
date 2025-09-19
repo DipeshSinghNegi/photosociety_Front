@@ -8,7 +8,8 @@ export default function Home() {
         <h2 className="title">Welcome Freshers</h2>
 
         <p className="description">
-          Share your moments by uploading your favorite photos and instantly see them appear in the live gallery.
+          Share your moments by uploading your favorite photos and instantly see them appear
+          in the live gallery projected on the stage screen.
         </p>
 
         <div className="button-group">
@@ -16,11 +17,12 @@ export default function Home() {
             📷 Upload a Photo
           </a>
           <a href="/main" className="btn secondary">
-            👀 View Live Gallery
+            👀 View Live Gallery (Projector)
           </a>
         </div>
-         <p className="description">
-        ~ College Photo Society Event
+
+        <p className="description">
+          ~ College Photo Society Event
         </p>
       </main>
 
